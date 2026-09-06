@@ -12,7 +12,7 @@ STEP 2｜來源風險分級
 ================================================================================
 來源等級：A級（官方）
 來源說明：越南外交部海外越南人國家委員會 (Ủy ban Nhà nước về người Việt Nam ở nước ngoài, Bộ Ngoại giao) 官方公告
-原始來源參考：VietnamPlus (越通社) / Báo Nhân Dân (人民報) 官方專題
+原始來源連結：https://www.vietnamplus.vn/ngay-ton-vinh-tieng-viet-lan-toa-tinh-yeu-tieng-me-de-trong-cong-dong-kieu-bao-post976865.vnp
 發布時間：2026-09-05 16:30
 
 ================================================================================
@@ -66,7 +66,7 @@ STEP 8｜最終 Tag
 ================================================================================
 STEP 9｜五語圖說
 ================================================================================
-Tiếng Việt: (Hình minh họa tin tức, hoạt động văn hóa và khuyến khích học tập của thế hệ trẻ / không phải hình ảnh thực tế)
+Tiếng Việt: {Các em học sinh trong hoạt động hưởng ứng Ngày Tôn vinh tiếng Việt(Ảnh envato/vietnamese_language_day)}
 
 ================================================================================
 STEP 10｜SOP 風險評級
