@@ -42,6 +42,11 @@
 
 ## 四、專案維護與變更歷史 (Changelog)
 
+* **2026-09-06 (新聞真實原始 URL 全面校正與直連驗證)**：
+  * **深度校正新聞 URL**：
+    * 新聞 01：修正先前失效 ID 導致轉向首頁之問題，更換為越南政府電子入口網站（Cổng TTĐT Chính phủ）官方權威政策指導專頁 `https://xaydungchinhsach.chinhphu.vn/thu-tuc-cap-the-can-cuoc-cho-nguoi-viet-nam-dinh-cu-o-nuoc-ngoai-119250123154650009.htm`，點擊可直接閱讀公安部完整換證與民事戶籍法規問答。
+    * 新聞 02：修正 VietnamPlus 文章 ID 錯配（原 976865 指向股市報導）之問題，更換為真實對應之越語推廣與越語書庫官方報導專頁 `https://www.vietnamplus.vn/tu-sach-tieng-viet-nhip-cau-gin-giu-tieng-me-de-cho-cong-dong-nguoi-viet-o-nuoc-ngoai-post1120950.vnp`，點擊可直接閱讀完整報導內容。
+  * **同步產出更新**：同步更新 `20260906/AI文字內容/` 之純文字檔案及 `20260906/DOC範本/` 之兩份 Word 上稿單，底層 XML 超連結關聯目標與可見文字同步通過 Assert 一致性校驗。
 * **2026-09-06 (rules 規則體系模組化拆分與單一權威保證)**：
   * **模組化職責拆分**：依專業領域將 `rules/` 拆分為 4 份各司其職、互不重疊的獨立規則檔案（`00_規則體系總綱與目錄管理規範.md`、`01_新聞選題與審查紅線規範.md`、`02_新聞改寫與11步SOP規範.md`、`03_Word上稿單排版與超連結規範.md`），並配備 `rules/README.md` 索引導覽。
   * **消除跨檔重複**：徹底刪除原單一彙總檔 `rules/專案採編與上稿唯一權威規範.md`，杜絕任何規則在多個檔案中多次提及，確保各規則唯一權威。

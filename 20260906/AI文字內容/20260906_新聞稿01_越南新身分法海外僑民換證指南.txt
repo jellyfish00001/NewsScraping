@@ -11,8 +11,8 @@ STEP 1｜新聞分類
 STEP 2｜來源風險分級
 ================================================================================
 來源等級：A級（官方）
-來源說明：越南公安部 (Bộ Công an) 官方公報、行政管理警察局 (Cục C06) 規範公告
-原始來源連結：https://tuoitre.vn/nguoi-viet-o-nuoc-ngoai-co-duoc-cap-the-can-cuoc-20240702101532456.htm
+來源說明：越南政府電子入口網站 (Cổng TTĐT Chính phủ) - 越南公安部 (Bộ Công an) 官方政策指引
+原始來源連結：https://xaydungchinhsach.chinhphu.vn/thu-tuc-cap-the-can-cuoc-cho-nguoi-viet-nam-dinh-cu-o-nuoc-ngoai-119250123154650009.htm
 發布時間：2026-09-05 14:00
 
 ================================================================================

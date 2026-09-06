@@ -1,10 +1,4 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.temp
-
-# Word / Office temporary files
 ~$*.docx
-~$*.doc
 *.tmp
+__pycache__/
+*.pyc
