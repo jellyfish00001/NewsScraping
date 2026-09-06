@@ -16,7 +16,8 @@
 
 ## 專案結構簡介
 
-* 📁 **`rules/`**：包含唯一權威手冊 [`rules/專案採編與上稿唯一權威規範.md`](./rules/專案採編與上稿唯一權威規範.md)。
+* 📁 **`rules/`**：靜態規範專區，包含唯一權威手冊 [`rules/專案採編與上稿唯一權威規範.md`](./rules/專案採編與上稿唯一權威規範.md)。
+* 📁 **`skills/`**（或 **`Skills/`**）：動態工作流專區，包含每日新聞產出標準作業流程 [`skills/daily-news-workflow/SKILL.md`](./skills/daily-news-workflow/SKILL.md)。
 * 📁 **`templates/`**：存放發稿格式範本與 Word 上稿單空白範本。
 * 📁 **`scripts/`**：
   * `crop_news_images.py`：新聞圖片智慧等比例裁切模組（516*292）。

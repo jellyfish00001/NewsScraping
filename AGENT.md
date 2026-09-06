@@ -25,7 +25,8 @@
 
 ## 三、專案結構與模組索引
 
-* 📁 **`rules/`**：包含唯一權威規則手冊 [`rules/專案採編與上稿唯一權威規範.md`](./rules/專案採編與上稿唯一權威規範.md)。
+* 📁 **`rules/`**：靜態規範專區，包含唯一權威手冊 [`rules/專案採編與上稿唯一權威規範.md`](./rules/專案採編與上稿唯一權威規範.md)。
+* 📁 **`skills/`**（或 **`Skills/`**）：動態工作流專區，包含每日產出作業流程 [`skills/daily-news-workflow/SKILL.md`](./skills/daily-news-workflow/SKILL.md)。
 * 📁 **`templates/`**：存放發稿標準格式範本與 Word 上稿單空白範本（`新住民全球新聞網_上稿單範本.docx`）。
 * 📁 **`scripts/`**：
   * `crop_news_images.py`：新聞圖片智慧裁切為 516*292 工具。
@@ -37,6 +38,10 @@
 
 ## 四、專案維護與變更歷史 (Changelog)
 
+* **2026-09-06 (Rules 與 Skills 職責拆分)**：
+  * 依規範與流程分離原則，將每日新聞產生之 7 步作業流程獨立拆分建立成專屬 Skill：[`skills/daily-news-workflow/SKILL.md`](./skills/daily-news-workflow/SKILL.md)。
+  * `rules/` 專注於合規紅線、審查標準與交付排版規範（What to comply with）；`skills/` 專注於每日實際執行步驟管線（How to execute）。
+  * 同步更新 `rules/專案採編與上稿唯一權威規範.md`、`AGENT.md` 與 `README.md`。
 * **2026-09-06 (規則架構精簡與單一權威來源確立)**：
   * 確立「唯一權威來源原則（SSOT）」：整合所有審查紅線、11 步 SOP、Docx 規範與目錄架構至唯一檔案 [`rules/專案採編與上稿唯一權威規範.md`](./rules/專案採編與上稿唯一權威規範.md)。
   * 清理 `rules/` 目錄，刪除分散之舊規則檔（01、02、03）。
