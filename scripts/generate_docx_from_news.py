@@ -24,12 +24,10 @@ def set_cell_clean_text(cell, new_text, font_name='Times New Roman', font_size_p
         r_nodes = cell._tc.xpath('.//w:r')
         for r in r_nodes:
             rPr = r.get_or_add_rPr()
-            # 移除文字底色與反白
             for s in rPr.xpath('.//w:shd'):
                 rPr.remove(s)
             for h in rPr.xpath('.//w:highlight'):
                 rPr.remove(h)
-            # 確保文字顏色為純黑
             color = rPr.find(qn('w:color'))
             if color is not None:
                 color.set(qn('w:val'), '000000')
@@ -38,7 +36,6 @@ def set_cell_clean_text(cell, new_text, font_name='Times New Roman', font_size_p
                 new_col.set(qn('w:val'), '000000')
                 rPr.append(new_col)
     else:
-        # 如果無現成 t 節點，重新以乾淨段落填入
         for p in list(cell.paragraphs):
             p._p.getparent().remove(p._p)
         p = cell.add_paragraph()
@@ -49,17 +46,64 @@ def set_cell_clean_text(cell, new_text, font_name='Times New Roman', font_size_p
         run.font.color.rgb = RGBColor(0, 0, 0)
         run._r.get_or_add_rPr().get_or_add_rFonts().set(qn('w:eastAsia'), font_name)
 
+def update_hyperlink_cell(cell, doc, target_url):
+    """更新相關連結儲存格：同時修正顯示文字與底層 XML 超連結關係 (r:id / rel._target)，並嚴格審核一致性"""
+    clear_cell_shading_and_highlight(cell)
+    
+    # 1. 搜尋 cell 內的 w:hyperlink 元素
+    hyperlinks = cell._tc.xpath('.//w:hyperlink')
+    if hyperlinks:
+        hl_elem = hyperlinks[0]
+        r_id = hl_elem.get(qn('r:id'))
+        if r_id and r_id in doc.part.rels:
+            # 修正底層超連結目標 (Target URL)
+            doc.part.rels[r_id]._target = target_url
+            
+        # 修正可見文字
+        t_nodes = hl_elem.xpath('.//w:t')
+        if t_nodes:
+            t_nodes[0].text = target_url
+            for extra in t_nodes[1:]:
+                extra.getparent().remove(extra)
+        else:
+            set_cell_clean_text(cell, target_url, font_name='Times New Roman', font_size_pt=11)
+    else:
+        # 若無 hyperlink 元素，直接純文字寫入
+        set_cell_clean_text(cell, target_url, font_name='Times New Roman', font_size_pt=11)
+        
+    # 2. 清除儲存格內其他多餘段落與 run 的底色/顏色
+    for r in cell._tc.xpath('.//w:r'):
+        rPr = r.get_or_add_rPr()
+        for s in rPr.xpath('.//w:shd'):
+            rPr.remove(s)
+        for h in rPr.xpath('.//w:highlight'):
+            rPr.remove(h)
+        color = rPr.find(qn('w:color'))
+        if color is not None:
+            color.set(qn('w:val'), '000000')
+
+    # 3. 嚴格審核：確認底層關係已正確更新
+    if hyperlinks:
+        r_id = hyperlinks[0].get(qn('r:id'))
+        if r_id in doc.part.rels:
+            actual_rel_target = doc.part.rels[r_id].target_ref
+            assert actual_rel_target == target_url, f"審核失敗: 超連結目標 {actual_rel_target} 與網址 {target_url} 不一致！"
+            print(f"[審核通過] 超連結底層目標與顯示網址完全一致: {actual_rel_target}")
+
 def build_template_doc(source_docx):
     """建立乾淨無特殊顏色之標準 Docx Document 物件"""
     doc = docx.Document(source_docx)
     t = doc.tables[0]
     
-    # 動態調整欄位替換為占位符號 (Placeholder)，並移除特殊顏色
+    # 動態調整欄位替換為占位符號 (Placeholder)
     set_cell_clean_text(t.rows[0].cells[1], '{{中文標題}}', font_name='微軟正黑體', font_size_pt=12)
     set_cell_clean_text(t.rows[1].cells[1], '{{外文標題}}', font_name='Times New Roman', font_size_pt=12)
-    set_cell_clean_text(t.rows[8].cells[4], '{主圖說明(Ảnh envato/{圖片名稱})}', font_name='Times New Roman', font_size_pt=11)
+    # 主圖格式調整為：主圖說明(Ảnh envato/{圖片名稱})，不帶最外層大括號
+    set_cell_clean_text(t.rows[8].cells[4], '主圖說明(Ảnh envato/{圖片名稱})', font_name='Times New Roman', font_size_pt=11)
     set_cell_clean_text(t.rows[12].cells[1], '{{關鍵字}}', font_name='Times New Roman', font_size_pt=11)
-    set_cell_clean_text(t.rows[13].cells[1], '{{相關連結}}', font_name='Times New Roman', font_size_pt=11)
+    
+    # 範本相關連結占位符 (若有 hyperlink 則更新文字)
+    update_hyperlink_cell(t.rows[13].cells[1], doc, '{{相關連結URL}}')
     
     # 替換內文段落為標準占位符
     for p in list(doc.paragraphs)[2:]:
@@ -86,7 +130,7 @@ def build_template_doc(source_docx):
     return doc
 
 def parse_news_txt(txt_path):
-    """精準解析每日新聞文字檔案中的各欄位資訊，提取原始 URL 連結"""
+    """精準解析每日新聞文字檔案中的各欄位資訊，提取原始真實 URL 連結與圖說"""
     with open(txt_path, 'r', encoding='utf-8') as f:
         content = f.read()
         
@@ -108,9 +152,12 @@ def parse_news_txt(txt_path):
     kw_match = re.search(r'Tiếng Việt：([^\n]+)', content)
     keywords = kw_match.group(1).strip() if kw_match else ''
     
-    # 圖說 (格式：{主圖說明(Ảnh envato/{圖片名稱})})
+    # 圖說 (格式：主圖說明(Ảnh envato/{圖片名稱}))
+    # 移除可能殘留的最外層大括號
     caption_match = re.search(r'STEP 9｜五語圖說\s*=+\s*\n(?:Tiếng Việt:\s*)?([^\n]+)', content)
     caption_raw = caption_match.group(1).strip() if caption_match else ''
+    if caption_raw.startswith('{') and caption_raw.endswith('}'):
+        caption_raw = caption_raw[1:-1].strip()
     
     # 越南文內文段落
     body_match = re.search(r'【越南文內文 \(Rewrite\)】\s*\n(.*?)(?=\n={10,}|\nSTEP 6|$)', content, re.DOTALL)
@@ -131,10 +178,6 @@ def parse_news_txt(txt_path):
 
 def fill_news_from_doc(template_doc, news_data, image_path, out_docx_path):
     """將新聞資料、原始 URL 連結與 516*292 配圖精確填入 Docx 上稿單"""
-    import copy
-    # 複製文件物件以獨立填入
-    # 由於 python-docx 無直接 deepcopy Document，我們可透過儲存與重新載入或重新產生
-    # 最穩健方式：重新建立 base doc
     t = template_doc.tables[0]
     
     # 1. 填入標題 (無特殊背景色與反白)
@@ -149,15 +192,14 @@ def fill_news_from_doc(template_doc, news_data, image_path, out_docx_path):
     new_img_p = r8_c1.add_paragraph()
     img_run = new_img_p.add_run()
     if os.path.exists(image_path):
-        # 依 516*292 等比例規格插入，寬度設定為 2.135 英吋
         img_run.add_picture(image_path, width=Inches(2.135))
     
-    # 3. 填入圖說 (Row 8, Cell 4) - 格式嚴格遵循 {主圖說明(Ảnh envato/{圖片名稱})}
+    # 3. 填入圖說 (Row 8, Cell 4) - 格式為 主圖說明(Ảnh envato/{圖片名稱})
     set_cell_clean_text(t.rows[8].cells[4], news_data['caption'], font_name='Times New Roman', font_size_pt=11)
     
-    # 4. 填入關鍵字與原始 URL 連結 (嚴禁越南說明文字)
+    # 4. 填入關鍵字與原始真實 URL 連結 (含底層超連結審核)
     set_cell_clean_text(t.rows[12].cells[1], news_data['keywords'], font_name='Times New Roman', font_size_pt=11)
-    set_cell_clean_text(t.rows[13].cells[1], news_data['source_url'], font_name='Times New Roman', font_size_pt=11)
+    update_hyperlink_cell(t.rows[13].cells[1], template_doc, news_data['source_url'])
     
     # 5. 填入內文段落 (表格後方的內文)
     for p in list(template_doc.paragraphs)[2:]:
@@ -182,18 +224,12 @@ if __name__ == '__main__':
     base_docx = r'D:\越南新聞稿\VN090602.docx'
     template_out = r'D:\越南新聞稿\templates\新住民全球新聞網_上稿單範本.docx'
     
-    # 1. 產生標準範本 (若檔案被 Word 開啟鎖定，則通知或輸出至可用路徑)
+    # 1. 產生標準單一 Docx 範本
     tmpl = build_template_doc(base_docx)
-    try:
-        tmpl.save(template_out)
-        print(f'[成功] 已產生標準 Docx 範本檔案: {template_out}')
-    except PermissionError:
-        print(f'[提示] 範本檔案 {template_out} 目前正由 Word 開啟中，暫存至新版並接續產生輸出。')
-        template_out_alt = r'D:\越南新聞稿\templates\新住民全球新聞網_上稿單範本_新版.docx'
-        tmpl.save(template_out_alt)
-        print(f'[成功] 已將最新範本儲存至: {template_out_alt}')
+    tmpl.save(template_out)
+    print(f'[成功] 已更新單一標準 Docx 範本檔案: {template_out}')
 
-    # 2. 自動填入今日兩篇新聞稿
+    # 2. 自動填入今日兩篇新聞稿 (使用原始 URL 連結與 主圖說明(Ảnh envato/{圖片名稱}) 圖說)
     news1_txt = r'D:\越南新聞稿\20260906\AI文字內容\20260906_新聞稿01_越南新身分法海外僑民換證指南.txt'
     news1_img = r'D:\越南新聞稿\20260906\20260906_新聞01_越南新身分法換證配圖.jpg'
     news1_out = r'D:\越南新聞稿\20260906\DOC範本\VN20260906_01_越南新身分法.docx'

@@ -27,10 +27,10 @@
 
 * 📁 **`rules/`**：靜態規範專區，包含唯一權威手冊 [`rules/專案採編與上稿唯一權威規範.md`](./rules/專案採編與上稿唯一權威規範.md)。
 * 📁 **`skills/`**（或 **`Skills/`**）：動態工作流專區，包含每日產出作業流程 [`skills/daily-news-workflow/SKILL.md`](./skills/daily-news-workflow/SKILL.md)。
-* 📁 **`templates/`**：存放發稿標準格式範本與 Word 上稿單空白範本（`新住民全球新聞網_上稿單範本.docx`）。
+* 📁 **`templates/`**：存放單一 Word 上稿單空白範本（`新住民全球新聞網_上稿單範本.docx`）與放置說明文件（`templates/README.md`）。
 * 📁 **`scripts/`**：
   * `crop_news_images.py`：新聞圖片智慧裁切為 516*292 工具。
-  * `generate_docx_from_news.py`：Word 上稿單自動生成模組。
+  * `generate_docx_from_news.py`：Word 上稿單自動生成模組（具備超連結底層目標同步與一致性審核機制）。
 * 📁 **`YYYYMMDD/`**（如 `20260906/`）：每日產出目錄（含外層配圖、`AI文字內容/` 純文字稿、`DOC範本/` 正式交付 Word 文件）。
 * 📄 **`README.md`**：專案公開說明文件。
 
@@ -38,6 +38,10 @@
 
 ## 四、專案維護與變更歷史 (Changelog)
 
+* **2026-09-06 (範本目錄清整、圖說語法簡化與超連結底層審核機制)**：
+  * **清整 templates/ 目錄**：刪除冗餘之 markdown 範本說明檔，確立 `templates/` 目錄僅保留單一空白 Word 範本（`新住民全球新聞網_上稿單範本.docx`）與放置說明文件（`templates/README.md`）。
+  * **簡化圖說命名格式**：去除外層大括號，統一規範為 `主圖說明(Ảnh envato/{圖片名稱})`。同步修正 `rules/`、`skills/`、`templates/README.md` 與今日純文字產出檔。
+  * **超連結底層目標審核與同步修復**：修正 `VN20260906_02_海外越語推廣日.docx` 中 Word 底層超連結 Relationship Target 殘留舊連結（vnexpress 菸草報導）之問題，使其與顯示文字 `https://www.vietnamplus.vn/...` 完全一致；並在 `generate_docx_from_news.py`、`rules/` 及 `skills/` 中加入底層超連結嚴格校驗與 Assert 審核機制。
 * **2026-09-06 (Rules 與 Skills 職責拆分)**：
   * 依規範與流程分離原則，將每日新聞產生之 7 步作業流程獨立拆分建立成專屬 Skill：[`skills/daily-news-workflow/SKILL.md`](./skills/daily-news-workflow/SKILL.md)。
   * `rules/` 專注於合規紅線、審查標準與交付排版規範（What to comply with）；`skills/` 專注於每日實際執行步驟管線（How to execute）。
